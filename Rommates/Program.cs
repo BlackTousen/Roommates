@@ -15,6 +15,7 @@ namespace Roommates
         {
             RoomRepository roomRepo = new RoomRepository(CONNECTION_STRING);
             ChoreRepository choreRepo = new ChoreRepository(CONNECTION_STRING);
+            RoommateRepository roommateRepo = new RoommateRepository(CONNECTION_STRING);
             bool runProgram = true;
             while (runProgram)
             {
@@ -37,8 +38,14 @@ namespace Roommates
                     case ("Search for chore"):
                         SearchForChores(choreRepo);
                         break;
+                    case ("Search for roommate"):
+                        SearchForRoommates(roommateRepo);
+                        break;
                     case ("Add a chore"):
                         AddAChore(choreRepo);
+                        break;
+                    case ("Unassigned Chores"):
+                        UnassignedChores(choreRepo);
                         break;
                     case ("Exit"):
                         runProgram = false;
@@ -82,6 +89,18 @@ namespace Roommates
             Chore choreToAdd = new Chore { Name = name };
             choreRepo.Insert(choreToAdd);
         }
+        static void UnassignedChores(ChoreRepository choreRepo)
+        {
+            List<Chore> unassigned = choreRepo.GetUnassignedChores();
+            Console.WriteLine("Unassigned Chores: ");
+            foreach (Chore chore in unassigned)
+            {
+                Console.WriteLine($"({chore.Id}) {chore.Name}");
+            }
+            Console.Write("Press any key to continue");
+            Console.ReadKey();
+
+        }
         static void ListOfRooms(RoomRepository roomRepo)
         {
             List<Room> rooms = roomRepo.GetAll();
@@ -98,7 +117,8 @@ namespace Roommates
             Console.Write("Room Id: ");
             string response = Console.ReadLine();
             int id;
-            if (!int.TryParse(response, out id)) {
+            if (!int.TryParse(response, out id))
+            {
                 Console.WriteLine("That is not a valid choice.");
                 SearchForRoom(roomRepo);
             }
@@ -108,6 +128,21 @@ namespace Roommates
             Console.Write("Press any key to continue");
             Console.ReadKey();
         }
+        static void SearchForRoommates(RoommateRepository roommateRepo)
+        {
+            Console.Write("Roommate Id: ");
+            string response = Console.ReadLine();
+            int id;
+            if (int.TryParse(response, out id))
+            {
+                Roommate room = roommateRepo.GetById(id);
+
+                Console.WriteLine($"[{room.Id}] - {room.FirstName} Rent Portion: {room.RentPortion} in {room.Room.Name} ");
+                Console.Write("Press any key to continue");
+                Console.ReadKey();
+            }
+        }
+
         static void AddARoom(RoomRepository roomRepo)
         {
             Console.Write("Room name: ");
@@ -138,9 +173,11 @@ namespace Roommates
             "Show all rooms",
             "Search for room",
             "Add a room",
+            "Search for roommate",
             "Show all chores",
             "Search for chore",
             "Add a chore",
+            "Unassigned Chores",
             "Exit"
         };
 
